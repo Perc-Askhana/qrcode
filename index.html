@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code & Logo Generator Modern (Single & Bulk)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Kekinian -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;600;700&family=Pacifico&family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700&family=Poppins:wght@400;600;700&family=Space+Grotesk:wght@500;700&family=Syne:wght@600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Code Styling Library -->
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <!-- JSZip for Bulk Zip Creation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- FileSaver for Downloading Files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e0ebff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased py-6 px-4 md:px-8">
+
+    <!-- Container Utama -->
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center gap-3 bg-blue-500/10 border border-blue-500/30 px-4 py-2 rounded-full text-blue-400 text-sm font-medium mb-4">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generator QR Code Modern & Bulk Batch Pro
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
+                QR Code <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Single & Bulk / Massal</span>
+            </h1>
+            <p class="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">
+                Buat 1 QR Code spesifik atau puluhan/ratusan QR Code sekaligus secara massal dari daftar tautan & file CSV, kustomisasi logo, bingkai, dan unduh ZIP sekaligus.
+            </p>
+
+            <!-- Mode Selector Tabs -->
+            <div class="flex justify-center mt-6">
+                <div class="bg-slate-900/80 p-1.5 rounded-2xl border border-slate-700/80 inline-flex gap-2">
+                    <button id="tabSingleBtn" class="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-qrcode"></i> Single QR Generator
+                    </button>
+                    <button id="tabBatchBtn" class="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-layer-group"></i> Batch / Massal (CSV/Text)
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Layout Utama -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Panel Pengaturan Left Side (7 Cols) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- SECTION 1: INPUT DATA (Berubah sesuai Tab) -->
+                
+                <!-- Tab 1: Single Mode Input -->
+                <div id="singleInputSection" class="glass-panel p-6 rounded-2xl shadow-2xl">
+                    <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-link text-blue-400"></i> 1. Tautan / Teks Utama
+                    </h2>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Tautan URL / Teks</label>
+                        <div class="relative">
+                            <input type="text" id="qrText" value="https://google.com" placeholder="https://domainanda.com" 
+                                class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 pl-10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                            <i class="fa-solid fa-globe absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Batch Mode Input -->
+                <div id="batchInputSection" class="glass-panel p-6 rounded-2xl shadow-2xl hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv text-emerald-400"></i> 1. Input Massal (Daftar / CSV)
+                        </h2>
+                        <span class="text-xs text-slate-400">1 Baris = 1 QR Code</span>
+                    </div>
+
+                    <!-- Toggle Mode Input Batch -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="batchModeTextBtn" class="py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            <i class="fa-solid fa-align-left mr-1"></i> Input Teks / Tautan
+                        </button>
+                        <button id="batchModeCsvBtn" class="py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700">
+                            <i class="fa-solid fa-file-arrow-up mr-1"></i> Upload File CSV / TXT
+                        </button>
+                    </div>
+
+                    <!-- Area Input Teks Massal -->
+                    <div id="batchTextInputContainer">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Daftar Link / Data (Format: Link, Label Bawah, Teks Bingkai)</label>
+                        <textarea id="batchTextArea" rows="6" placeholder="https://google.com, Google Indonesia, SCAN ME&#10;https://instagram.com, Instagram Kita, FOLL0W ME&#10;https://youtube.com, Channel YouTube, WATCH NOW"
+                            class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"></textarea>
+                        <p class="text-[11px] text-slate-500 mt-1">Gunakan koma (,) untuk memisahkan Tautan, Label Nama Bawah, dan Teks Bingkai.</p>
+                    </div>
+
+                    <!-- Area Upload CSV File -->
+                    <div id="batchCsvInputContainer" class="hidden">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Unggah File CSV / TXT</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="csvFileInput" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-700 border-dashed rounded-xl cursor-pointer bg-slate-900/50 hover:bg-slate-800/50 hover:border-emerald-500 transition-all">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <i class="fa-solid fa-file-csv text-3xl text-emerald-400 mb-2"></i>
+                                    <p class="text-xs text-slate-400"><span class="font-semibold text-emerald-400">Klik untuk upload CSV</span> atau drag file ke sini</p>
+                                    <p id="csvFileName" class="text-[11px] text-slate-500 mt-1">Kolom 1: Link | Kolom 2: Label Bawah | Kolom 3: Frame Text</p>
+                                </div>
+                                <input id="csvFileInput" type="file" accept=".csv, .txt" class="hidden" />
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Action Process Button -->
+                    <button id="processBatchBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-gears"></i> Saring & Generate Daftar Batch
+                    </button>
+                </div>
+
+                <!-- SECTION 2: BINGKAI / FRAME STYLING -->
+                <div class="glass-panel p-6 rounded-2xl shadow-2xl space-y-4">
+                    <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-crop-simple text-amber-400"></i> 2. Gaya Bingkai / Frame
+                    </h2>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="none" class="peer hidden" checked>
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-regular fa-square text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Tanpa Bingkai</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="simple" class="peer hidden">
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-vector-square text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Garis Minimalis</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="banner-bottom" class="peer hidden">
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-border-all text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Badge Bawah</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="banner-top" class="peer hidden">
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-heading text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Header Atas</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="bubble" class="peer hidden">
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-comment-dots text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Chat Bubble</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="frameStyle" value="card" class="peer hidden">
+                            <div class="p-3 text-center rounded-xl bg-slate-900/60 border border-slate-700 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-id-card text-lg block mb-1 text-slate-400 peer-checked:text-amber-400"></i>
+                                <span class="text-xs font-medium text-slate-300">Kartu Elegan</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Detail Opsi Bingkai -->
+                    <div id="frameOptionsContainer" class="space-y-4 pt-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Teks Bingkai Default</label>
+                                <input type="text" id="frameText" value="SCAN ME" placeholder="Contoh: PINDAI SAYA" 
+                                    class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Font Bingkai</label>
+                                <select id="frameFontFamily" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400 text-sm">
+                                    <optgroup label="Modern & Trending">
+                                        <option value="Plus Jakarta Sans" selected>Plus Jakarta Sans</option>
+                                        <option value="Poppins">Poppins (Clean)</option>
+                                        <option value="Montserrat">Montserrat (Geometris)</option>
+                                        <option value="Outfit">Outfit (Sleek)</option>
+                                        <option value="Space Grotesk">Space Grotesk (Tech)</option>
+                                        <option value="Syne">Syne (Bold & Edgy)</option>
+                                    </optgroup>
+                                    <optgroup label="Display & Other">
+                                        <option value="Bebas Neue">Bebas Neue (Poster / All-Caps)</option>
+                                        <option value="Pacifico">Pacifico (Script)</option>
+                                        <option value="Playfair Display">Playfair Display (Serif)</option>
+                                        <option value="Inter">Inter (Standard)</option>
+                                        <option value="Fira Code">Fira Code (Monospace)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Warna Bingkai</label>
+                                <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-700 rounded-xl px-2 py-1.5">
+                                    <input type="color" id="frameColor" value="#2563eb" class="w-7 h-7 rounded cursor-pointer bg-transparent border-0">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Warna Teks Bingkai</label>
+                                <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-700 rounded-xl px-2 py-1.5">
+                                    <input type="color" id="frameTextColor" value="#ffffff" class="w-7 h-7 rounded cursor-pointer bg-transparent border-0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: WARNA QR & LOGO -->
+                <div class="glass-panel p-6 rounded-2xl shadow-2xl space-y-6">
+                    <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-indigo-400"></i> 3. Warna QR & Logo Tengah
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="glass-card p-4 rounded-xl">
+                            <label class="block text-xs font-medium text-slate-300 mb-2">Warna QR Code (Foreground)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="fgColor" value="#0f172a" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                                <span id="fgColorText" class="text-sm font-mono text-slate-400">#0f172a</span>
+                            </div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl">
+                            <label class="block text-xs font-medium text-slate-300 mb-2">Warna Latar (Background)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="bgColor" value="#ffffff" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                                <span id="bgColorText" class="text-sm font-mono text-slate-400">#ffffff</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unggah Logo -->
+                    <div class="border-t border-slate-800 pt-5">
+                        <label class="block text-sm font-medium text-slate-300 mb-3 flex items-center justify-between">
+                            <span>Unggah Logo (Sama untuk semua QR)</span>
+                            <button id="removeLogoBtn" class="text-xs text-rose-400 hover:text-rose-300 hidden"><i class="fa-solid fa-trash"></i> Hapus Logo</button>
+                        </label>
+                        
+                        <div class="flex items-center justify-center w-full">
+                            <label for="logoInput" class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-700 border-dashed rounded-xl cursor-pointer bg-slate-900/50 hover:bg-slate-800/50 hover:border-blue-500 transition-all">
+                                <div class="flex flex-col items-center justify-center pt-4 pb-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400 mb-1"></i>
+                                    <p class="text-xs text-slate-400"><span class="font-semibold text-blue-400">Klik untuk unggah</span> logo (PNG/JPG/SVG)</p>
+                                </div>
+                                <input id="logoInput" type="file" accept="image/*" class="hidden" />
+                            </label>
+                        </div>
+
+                        <!-- Logo Slider Options -->
+                        <div id="logoControls" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 hidden">
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>Ukuran Logo</span>
+                                    <span id="logoSizeVal">25%</span>
+                                </div>
+                                <input type="range" id="logoSize" min="10" max="35" value="25" class="w-full accent-blue-500 cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>Margin / Padding Logo</span>
+                                    <span id="logoMarginVal">5px</span>
+                                </div>
+                                <input type="range" id="logoMargin" min="0" max="15" value="5" class="w-full accent-blue-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: KUSTOMISASI LABEL TEKS BAWAH -->
+                <div class="glass-panel p-6 rounded-2xl shadow-2xl space-y-4">
+                    <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-font text-emerald-400"></i> 4. Gaya Font Label Nama / Teks Bawah
+                    </h2>
+
+                    <!-- Teks Label Khusus Single Mode -->
+                    <div id="singleLabelContainer">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Teks Nama Tambahan (Single Mode)</label>
+                        <input type="text" id="labelTeks" value="MY BRAND" placeholder="Contoh: Nama Toko / Website" 
+                            class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Ukuran Font</label>
+                            <input type="number" id="labelFontSize" value="18" min="10" max="40" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Warna Teks</label>
+                            <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-700 rounded-xl px-2 py-1.5">
+                                <input type="color" id="labelColor" value="#0f172a" class="w-7 h-7 rounded cursor-pointer bg-transparent border-0">
+                                <span id="labelColorText" class="text-xs font-mono text-slate-400">#0f172a</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Pilihan Font Kekinian</label>
+                            <select id="labelFontFamily" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm">
+                                <optgroup label="Modern & Trending">
+                                    <option value="Poppins" selected>Poppins (Clean & Populer)</option>
+                                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                                    <option value="Montserrat">Montserrat (Geometris)</option>
+                                    <option value="Outfit">Outfit (Modern Tech)</option>
+                                    <option value="Space Grotesk">Space Grotesk (Futuristik)</option>
+                                    <option value="Syne">Syne (Bold / Hipster)</option>
+                                </optgroup>
+                                <optgroup label="Display & Script">
+                                    <option value="Pacifico">Pacifico (Estetik Script)</option>
+                                    <option value="Bebas Neue">Bebas Neue (Poster Caps)</option>
+                                    <option value="Playfair Display">Playfair Display (Serif)</option>
+                                    <option value="Inter">Inter (Minimalis)</option>
+                                    <option value="Fira Code">Fira Code (Monospace)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-1">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="labelBold" checked class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span class="ml-2 text-xs font-medium text-slate-300">Teks Tebal (Bold)</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Panel Preview Right Side (5 Cols - Sticky) -->
+            <div class="lg:col-span-5 lg:sticky lg:top-6 space-y-6">
+                
+                <!-- SINGLE PREVIEW SECTION -->
+                <div id="singlePreviewCard" class="glass-panel p-6 rounded-2xl shadow-2xl text-center">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-eye text-sky-400"></i> Pratinjau Single QR
+                        </h2>
+                        <span class="text-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">
+                            Live Preview
+                        </span>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="p-6 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex flex-col items-center justify-center min-h-[340px]">
+                        <div id="finalCanvasWrapper" class="shadow-2xl rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-white p-4">
+                            <canvas id="compositeCanvas" class="max-w-full h-auto block rounded-lg"></canvas>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">Perubahan pada opsi otomatis memperbarui pratinjau di atas.</p>
+                    </div>
+
+                    <!-- Single Download Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-6">
+                        <button id="downloadPngBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 px-3 rounded-xl shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-sm">
+                            <i class="fa-solid fa-download"></i> PNG
+                        </button>
+                        <button id="downloadJpgBtn" class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold py-2.5 px-3 rounded-xl shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-sm">
+                            <i class="fa-solid fa-image"></i> JPG
+                        </button>
+                        <button id="downloadSvgBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 text-sm">
+                            <i class="fa-solid fa-file-code"></i> SVG
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BATCH PREVIEW & DOWNLOAD SECTION -->
+                <div id="batchPreviewCard" class="glass-panel p-6 rounded-2xl shadow-2xl space-y-4 hidden">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-emerald-400"></i> Hasil Batch QR Code (<span id="batchCountText">0</span>)
+                        </h2>
+                        
+                        <!-- Pilihan Format Batch -->
+                        <div class="flex items-center gap-2">
+                            <select id="batchDownloadFormat" class="bg-slate-800 text-slate-200 text-xs font-semibold px-2 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+                                <option value="png">PNG</option>
+                                <option value="jpg">JPG</option>
+                            </select>
+                            <button id="downloadBatchZipBtn" disabled class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-600/20">
+                                <i class="fa-solid fa-file-zipper"></i> Unduh ZIP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar Batch Processing -->
+                    <div id="batchProgressContainer" class="hidden space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span id="batchProgressStatus">Memproses QR Code...</span>
+                            <span id="batchProgressVal">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="batchProgressBar" class="bg-emerald-500 h-full w-0 transition-all duration-150"></div>
+                        </div>
+                    </div>
+
+                    <!-- Table Preview Scroll Area -->
+                    <div class="overflow-y-auto max-h-[380px] rounded-xl border border-slate-800 bg-slate-950/60 p-2 space-y-2" id="batchListContainer">
+                        <div class="text-center py-10 text-slate-500 text-xs">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-600"></i>
+                            Belum ada data batch. Masukkan teks/upload CSV di sebelah kiri lalu klik "Saring & Generate Daftar Batch".
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-xs text-slate-500 border-t border-slate-800/80 pt-6">
+            &copy; 2026 QR Code Modern Bulk Generator. Powered by JSZip & HTML5 Canvas.
+        </footer>
+
+    </div>
+
+    <!-- Hidden Canvas untuk rendering Batch secara headless -->
+    <canvas id="hiddenBatchCanvas" class="hidden"></canvas>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Elements Reference
+            const tabSingleBtn = document.getElementById("tabSingleBtn");
+            const tabBatchBtn = document.getElementById("tabBatchBtn");
+            const singleInputSection = document.getElementById("singleInputSection");
+            const batchInputSection = document.getElementById("batchInputSection");
+            const singlePreviewCard = document.getElementById("singlePreviewCard");
+            const batchPreviewCard = document.getElementById("batchPreviewCard");
+            const singleLabelContainer = document.getElementById("singleLabelContainer");
+
+            // Single Inputs
+            const qrTextInput = document.getElementById("qrText");
+            const fgColorInput = document.getElementById("fgColor");
+            const fgColorText = document.getElementById("fgColorText");
+            const bgColorInput = document.getElementById("bgColor");
+            const bgColorText = document.getElementById("bgColorText");
+
+            // Frame Inputs
+            const frameText = document.getElementById("frameText");
+            const frameFontFamily = document.getElementById("frameFontFamily");
+            const frameColor = document.getElementById("frameColor");
+            const frameTextColor = document.getElementById("frameTextColor");
+
+            // Logo Inputs
+            const logoInput = document.getElementById("logoInput");
+            const logoControls = document.getElementById("logoControls");
+            const removeLogoBtn = document.getElementById("removeLogoBtn");
+            const logoSizeInput = document.getElementById("logoSize");
+            const logoSizeVal = document.getElementById("logoSizeVal");
+            const logoMarginInput = document.getElementById("logoMargin");
+            const logoMarginVal = document.getElementById("logoMarginVal");
+
+            // Label Inputs
+            const labelTeksInput = document.getElementById("labelTeks");
+            const labelFontSizeInput = document.getElementById("labelFontSize");
+            const labelColorInput = document.getElementById("labelColor");
+            const labelColorText = document.getElementById("labelColorText");
+            const labelFontFamilySelect = document.getElementById("labelFontFamily");
+            const labelBoldCheckbox = document.getElementById("labelBold");
+
+            // Canvas & Single Downloads
+            const compositeCanvas = document.getElementById("compositeCanvas");
+            const ctx = compositeCanvas.getContext("2d");
+            const downloadPngBtn = document.getElementById("downloadPngBtn");
+            const downloadJpgBtn = document.getElementById("downloadJpgBtn");
+            const downloadSvgBtn = document.getElementById("downloadSvgBtn");
+
+            // Batch Inputs
+            const batchModeTextBtn = document.getElementById("batchModeTextBtn");
+            const batchModeCsvBtn = document.getElementById("batchModeCsvBtn");
+            const batchTextInputContainer = document.getElementById("batchTextInputContainer");
+            const batchCsvInputContainer = document.getElementById("batchCsvInputContainer");
+            const batchTextArea = document.getElementById("batchTextArea");
+            const csvFileInput = document.getElementById("csvFileInput");
+            const csvFileName = document.getElementById("csvFileName");
+            const processBatchBtn = document.getElementById("processBatchBtn");
+            const batchListContainer = document.getElementById("batchListContainer");
+            const batchCountText = document.getElementById("batchCountText");
+            const downloadBatchZipBtn = document.getElementById("downloadBatchZipBtn");
+            const batchDownloadFormat = document.getElementById("batchDownloadFormat"); // Format Selector
+            const batchProgressContainer = document.getElementById("batchProgressContainer");
+            const batchProgressBar = document.getElementById("batchProgressBar");
+            const batchProgressVal = document.getElementById("batchProgressVal");
+            const batchProgressStatus = document.getElementById("batchProgressStatus");
+
+            let currentLogoDataUrl = null;
+            let currentTab = "single"; // 'single' or 'batch'
+            let batchInputMode = "text"; // 'text' or 'csv'
+            let parsedBatchItems = []; // [{url, label, frameText}]
+
+            // QRCodeStyling Engine
+            const qrCode = new QRCodeStyling({
+                width: 320,
+                height: 320,
+                type: "svg",
+                data: "https://google.com",
+                dotsOptions: { color: fgColorInput.value, type: "rounded" },
+                backgroundOptions: { color: bgColorInput.value },
+                imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.25 },
+                qrOptions: { errorCorrectionLevel: 'H' }
+            });
+
+            // TAB SWITCHING LOGIC
+            tabSingleBtn.addEventListener("click", () => {
+                currentTab = "single";
+                tabSingleBtn.className = "px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/30";
+                tabBatchBtn.className = "px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800";
+                
+                singleInputSection.classList.remove("hidden");
+                batchInputSection.classList.add("hidden");
+                singlePreviewCard.classList.remove("hidden");
+                batchPreviewCard.classList.add("hidden");
+                singleLabelContainer.classList.remove("hidden");
+
+                updateSingleQRCode();
+            });
+
+            tabBatchBtn.addEventListener("click", () => {
+                currentTab = "batch";
+                tabBatchBtn.className = "px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 bg-emerald-600 text-white shadow-lg shadow-emerald-600/30";
+                tabSingleBtn.className = "px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800";
+                
+                singleInputSection.classList.add("hidden");
+                batchInputSection.classList.remove("hidden");
+                singlePreviewCard.classList.add("hidden");
+                batchPreviewCard.classList.remove("hidden");
+                singleLabelContainer.classList.add("hidden");
+            });
+
+            // BATCH INPUT MODE SWITCH (Text vs CSV)
+            batchModeTextBtn.addEventListener("click", () => {
+                batchInputMode = "text";
+                batchModeTextBtn.className = "py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                batchModeCsvBtn.className = "py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700";
+                batchTextInputContainer.classList.remove("hidden");
+                batchCsvInputContainer.classList.add("hidden");
+            });
+
+            batchModeCsvBtn.addEventListener("click", () => {
+                batchInputMode = "csv";
+                batchModeCsvBtn.className = "py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                batchModeTextBtn.className = "py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700";
+                batchCsvInputContainer.classList.remove("hidden");
+                batchTextInputContainer.classList.add("hidden");
+            });
+
+            csvFileInput.addEventListener("change", (e) => {
+                if (e.target.files.length > 0) {
+                    csvFileName.textContent = `File dipilih: ${e.target.files[0].name}`;
+                }
+            });
+
+            function getSelectedFrameStyle() {
+                const checked = document.querySelector('input[name="frameStyle"]:checked');
+                return checked ? checked.value : 'none';
+            }
+
+            async function ensureFontsLoaded() {
+                const fFont = frameFontFamily.value;
+                const lFont = labelFontFamilySelect.value;
+                try {
+                    await Promise.all([
+                        document.fonts.load(`16px "${fFont}"`),
+                        document.fonts.load(`18px "${lFont}"`)
+                    ]);
+                } catch (err) {
+                    console.warn("Font loading warning:", err);
+                }
+            }
+
+            // Fungsi Bantuan Untuk Membuat Nama File Berdasarkan Link/Teks
+            function getSafeFilename(inputUrl) {
+                let text = inputUrl.trim() || "qrcode";
+                // Hilangkan http:// atau https://
+                text = text.replace(/^https?:\/\//i, '');
+                // Ganti karakter non-alfanumerik dengan underscore
+                return text.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            }
+
+            // CORE RENDER CANVAS FUNCTION
+            function drawToCanvas(targetCanvas, qrImage, options) {
+                const targetCtx = targetCanvas.getContext("2d");
+                const qrSize = 320;
+                const frameStyle = options.frameStyle;
+                const fText = options.frameText || "";
+                const fFont = options.frameFont;
+                const fColor = options.frameColor;
+                const fTextColor = options.frameTextColor;
+
+                const labelText = options.labelText || "";
+                const fontSize = options.fontSize;
+                const labelColor = options.labelColor;
+                const fontFamily = options.fontFamily;
+                const isBold = options.isBold;
+                const bgColor = options.bgColor;
+
+                let padding = 20;
+                let topOffset = padding;
+                let bottomOffset = padding;
+                let canvasWidth = qrSize + (padding * 2);
+                let canvasHeight = qrSize + (padding * 2);
+
+                if (frameStyle === 'simple') {
+                    padding = 28;
+                    canvasWidth = qrSize + (padding * 2);
+                    canvasHeight = qrSize + (padding * 2);
+                    topOffset = padding;
+                } else if (frameStyle === 'banner-bottom') {
+                    padding = 24;
+                    topOffset = padding;
+                    bottomOffset = padding + 50;
+                    canvasWidth = qrSize + (padding * 2);
+                    canvasHeight = qrSize + topOffset + bottomOffset;
+                } else if (frameStyle === 'banner-top') {
+                    padding = 24;
+                    topOffset = padding + 50;
+                    bottomOffset = padding;
+                    canvasWidth = qrSize + (padding * 2);
+                    canvasHeight = qrSize + topOffset + bottomOffset;
+                } else if (frameStyle === 'bubble') {
+                    padding = 28;
+                    topOffset = padding;
+                    bottomOffset = padding + 60;
+                    canvasWidth = qrSize + (padding * 2);
+                    canvasHeight = qrSize + topOffset + bottomOffset;
+                } else if (frameStyle === 'card') {
+                    padding = 32;
+                    topOffset = padding + 20;
+                    bottomOffset = padding + 30;
+                    canvasWidth = qrSize + (padding * 2);
+                    canvasHeight = qrSize + topOffset + bottomOffset;
+                }
+
+                let subLabelPadding = 0;
+                if (labelText !== "") {
+                    subLabelPadding = fontSize + 24;
+                    canvasHeight += subLabelPadding;
+                }
+
+                targetCanvas.width = canvasWidth;
+                targetCanvas.height = canvasHeight;
+
+                targetCtx.fillStyle = bgColor;
+                targetCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                // FRAME DRAWING LOGIC
+                if (frameStyle === 'simple') {
+                    targetCtx.strokeStyle = fColor;
+                    targetCtx.lineWidth = 10;
+                    targetCtx.strokeRect(10, 10, canvasWidth - 20, canvasHeight - 20 - subLabelPadding);
+                } else if (frameStyle === 'banner-bottom') {
+                    targetCtx.strokeStyle = fColor;
+                    targetCtx.lineWidth = 8;
+                    targetCtx.strokeRect(8, 8, canvasWidth - 16, canvasHeight - 16 - subLabelPadding);
+
+                    targetCtx.fillStyle = fColor;
+                    const bannerH = 46;
+                    const bannerY = topOffset + qrSize + 10;
+                    targetCtx.fillRect(16, bannerY, canvasWidth - 32, bannerH);
+
+                    if (fText) {
+                        targetCtx.fillStyle = fTextColor;
+                        targetCtx.font = `bold 18px "${fFont}", sans-serif`;
+                        targetCtx.textAlign = "center";
+                        targetCtx.textBaseline = "middle";
+                        targetCtx.fillText(fText.toUpperCase(), canvasWidth / 2, bannerY + (bannerH / 2));
+                    }
+                } else if (frameStyle === 'banner-top') {
+                    targetCtx.strokeStyle = fColor;
+                    targetCtx.lineWidth = 8;
+                    targetCtx.strokeRect(8, 8, canvasWidth - 16, canvasHeight - 16 - subLabelPadding);
+
+                    targetCtx.fillStyle = fColor;
+                    const bannerH = 46;
+                    targetCtx.fillRect(16, 16, canvasWidth - 32, bannerH);
+
+                    if (fText) {
+                        targetCtx.fillStyle = fTextColor;
+                        targetCtx.font = `bold 18px "${fFont}", sans-serif`;
+                        targetCtx.textAlign = "center";
+                        targetCtx.textBaseline = "middle";
+                        targetCtx.fillText(fText.toUpperCase(), canvasWidth / 2, 16 + (bannerH / 2));
+                    }
+                } else if (frameStyle === 'bubble') {
+                    targetCtx.fillStyle = fColor;
+                    targetCtx.beginPath();
+                    targetCtx.roundRect(10, 10, canvasWidth - 20, canvasHeight - 20 - subLabelPadding, 24);
+                    targetCtx.fill();
+
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(canvasWidth / 2 - 15, canvasHeight - 20 - subLabelPadding);
+                    targetCtx.lineTo(canvasWidth / 2, canvasHeight - 5 - subLabelPadding);
+                    targetCtx.lineTo(canvasWidth / 2 + 15, canvasHeight - 20 - subLabelPadding);
+                    targetCtx.closePath();
+                    targetCtx.fill();
+
+                    targetCtx.fillStyle = bgColor;
+                    targetCtx.beginPath();
+                    targetCtx.roundRect(padding - 6, topOffset - 6, qrSize + 12, qrSize + 12, 16);
+                    targetCtx.fill();
+
+                    if (fText) {
+                        targetCtx.fillStyle = fTextColor;
+                        targetCtx.font = `bold 16px "${fFont}", sans-serif`;
+                        targetCtx.textAlign = "center";
+                        targetCtx.textBaseline = "middle";
+                        targetCtx.fillText(fText, canvasWidth / 2, topOffset + qrSize + 30);
+                    }
+                } else if (frameStyle === 'card') {
+                    targetCtx.fillStyle = fColor;
+                    targetCtx.beginPath();
+                    targetCtx.roundRect(8, 8, canvasWidth - 16, canvasHeight - 16 - subLabelPadding, 20);
+                    targetCtx.fill();
+
+                    if (fText) {
+                        targetCtx.fillStyle = fTextColor;
+                        targetCtx.font = `bold 16px "${fFont}", sans-serif`;
+                        targetCtx.textAlign = "center";
+                        targetCtx.textBaseline = "middle";
+                        targetCtx.fillText(fText, canvasWidth / 2, 26);
+                    }
+                }
+
+                // DRAW RAW QR CODE
+                targetCtx.drawImage(qrImage, (canvasWidth - qrSize) / 2, topOffset, qrSize, qrSize);
+
+                // DRAW LABEL TEXT
+                if (labelText !== "") {
+                    targetCtx.fillStyle = labelColor;
+                    const fontWeight = isBold ? "bold" : "normal";
+                    targetCtx.font = `${fontWeight} ${fontSize}px "${fontFamily}", sans-serif`;
+                    targetCtx.textAlign = "center";
+                    targetCtx.textBaseline = "middle";
+
+                    const textY = canvasHeight - (subLabelPadding / 2);
+                    targetCtx.fillText(labelText, canvasWidth / 2, textY);
+                }
+            }
+
+            // SINGLE UPDATE FUNCTION
+            async function updateSingleQRCode() {
+                if (currentTab !== "single") return;
+                await ensureFontsLoaded();
+
+                const text = qrTextInput.value.trim() || "https://google.com";
+                const logoSize = parseFloat(logoSizeInput.value) / 100;
+                const logoMargin = parseInt(logoMarginInput.value);
+
+                qrCode.update({
+                    data: text,
+                    dotsOptions: { color: fgColorInput.value },
+                    backgroundOptions: { color: bgColorInput.value },
+                    image: currentLogoDataUrl || "",
+                    imageOptions: { imageSize: logoSize, margin: logoMargin }
+                });
+
+                const rawBlob = await qrCode.getRawData("png");
+                const img = new Image();
+                const url = URL.createObjectURL(rawBlob);
+
+                img.onload = () => {
+                    drawToCanvas(compositeCanvas, img, {
+                        frameStyle: getSelectedFrameStyle(),
+                        frameText: frameText.value.trim(),
+                        frameFont: frameFontFamily.value,
+                        frameColor: frameColor.value,
+                        frameTextColor: frameTextColor.value,
+                        labelText: labelTeksInput.value.trim(),
+                        fontSize: parseInt(labelFontSizeInput.value) || 18,
+                        labelColor: labelColorInput.value,
+                        fontFamily: labelFontFamilySelect.value,
+                        isBold: labelBoldCheckbox.checked,
+                        bgColor: bgColorInput.value
+                    });
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+            }
+
+            // LISTENERS FOR SINGLE MODE & GLOBAL STYLES
+            [qrTextInput, frameText, frameFontFamily, frameColor, frameTextColor, fgColorInput, bgColorInput, labelTeksInput, labelFontSizeInput, labelColorInput, labelFontFamilySelect, labelBoldCheckbox].forEach(el => {
+                el.addEventListener("input", () => {
+                    fgColorText.textContent = fgColorInput.value;
+                    bgColorText.textContent = bgColorInput.value;
+                    labelColorText.textContent = labelColorInput.value;
+                    if (currentTab === "single") updateSingleQRCode();
+                });
+            });
+
+            document.querySelectorAll('input[name="frameStyle"]').forEach(radio => {
+                radio.addEventListener("change", () => {
+                    if (currentTab === "single") updateSingleQRCode();
+                });
+            });
+
+            // LOGO UPLOAD & REMOVE
+            logoInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        currentLogoDataUrl = event.target.result;
+                        logoControls.classList.remove("hidden");
+                        removeLogoBtn.classList.remove("hidden");
+                        if (currentTab === "single") updateSingleQRCode();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            removeLogoBtn.addEventListener("click", () => {
+                currentLogoDataUrl = null;
+                logoInput.value = "";
+                logoControls.classList.add("hidden");
+                removeLogoBtn.classList.add("hidden");
+                if (currentTab === "single") updateSingleQRCode();
+            });
+
+            logoSizeInput.addEventListener("input", (e) => {
+                logoSizeVal.textContent = `${e.target.value}%`;
+                if (currentTab === "single") updateSingleQRCode();
+            });
+
+            logoMarginInput.addEventListener("input", (e) => {
+                logoMarginVal.textContent = `${e.target.value}px`;
+                if (currentTab === "single") updateSingleQRCode();
+            });
+
+            // SINGLE DOWNLOADS
+            downloadPngBtn.addEventListener("click", () => {
+                const imageURI = compositeCanvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                const safeName = getSafeFilename(qrTextInput.value);
+                link.download = `${safeName}.png`;
+                link.href = imageURI;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            downloadJpgBtn.addEventListener("click", () => {
+                // Background JPG solid
+                const imageURI = compositeCanvas.toDataURL("image/jpeg", 1.0);
+                const link = document.createElement("a");
+                const safeName = getSafeFilename(qrTextInput.value);
+                link.download = `${safeName}.jpg`;
+                link.href = imageURI;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            downloadSvgBtn.addEventListener("click", () => {
+                const safeName = getSafeFilename(qrTextInput.value);
+                qrCode.download({ name: safeName, extension: "svg" });
+            });
+
+
+            // ==========================================
+            // BATCH / BULK GENERATOR LOGIC
+            // ==========================================
+
+            processBatchBtn.addEventListener("click", async () => {
+                parsedBatchItems = [];
+
+                if (batchInputMode === "text") {
+                    const rawText = batchTextArea.value.trim();
+                    if (!rawText) {
+                        alert("Harap masukkan setidaknya 1 baris tautan / teks!");
+                        return;
+                    }
+                    const lines = rawText.split("\n");
+                    lines.forEach((line) => {
+                        if (line.trim()) {
+                            const parts = line.split(",").map(p => p.trim());
+                            parsedBatchItems.push({
+                                url: parts[0] || "",
+                                label: parts[1] || "",
+                                frameText: parts[2] || frameText.value.trim() || "SCAN ME"
+                            });
+                        }
+                    });
+                    renderBatchListUI();
+                } else {
+                    // CSV File Processing
+                    const file = csvFileInput.files[0];
+                    if (!file) {
+                        alert("Harap pilih file CSV terlebih dahulu!");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const lines = content.split(/\r\n|\n/);
+                        lines.forEach((line) => {
+                            if (line.trim()) {
+                                // delimiter detect (, atau ;)
+                                const delim = line.includes(";") ? ";" : ",";
+                                const parts = line.split(delim).map(p => p.trim().replace(/^["']|["']$/g, ''));
+                                if (parts[0]) {
+                                    parsedBatchItems.push({
+                                        url: parts[0],
+                                        label: parts[1] || "",
+                                        frameText: parts[2] || frameText.value.trim() || "SCAN ME"
+                                    });
+                                }
+                            }
+                        });
+                        renderBatchListUI();
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Ditambahkan argumen "format" default 'png' untuk opsional diganti 'jpg'
+            async function generateCanvasDataUrl(item, format = 'png') {
+                await ensureFontsLoaded();
+                const tempQr = new QRCodeStyling({
+                    width: 300,
+                    height: 300,
+                    type: "svg",
+                    data: item.url,
+                    dotsOptions: { color: fgColorInput.value },
+                    backgroundOptions: { color: bgColorInput.value },
+                    image: currentLogoDataUrl || "",
+                    imageOptions: {
+                        imageSize: parseFloat(logoSizeInput.value) / 100,
+                        margin: parseInt(logoMarginInput.value)
+                    },
+                    qrOptions: { errorCorrectionLevel: 'H' }
+                });
+
+                const rawBlob = await tempQr.getRawData("png");
+                const img = new Image();
+                const url = URL.createObjectURL(rawBlob);
+
+                return new Promise((resolve) => {
+                    img.onload = () => {
+                        const tempCanvas = document.createElement("canvas");
+                        drawToCanvas(tempCanvas, img, {
+                            frameStyle: getSelectedFrameStyle(),
+                            frameText: item.frameText || frameText.value.trim(),
+                            frameFont: frameFontFamily.value,
+                            frameColor: frameColor.value,
+                            frameTextColor: frameTextColor.value,
+                            labelText: item.label,
+                            fontSize: parseInt(labelFontSizeInput.value) || 18,
+                            labelColor: labelColorInput.value,
+                            fontFamily: labelFontFamilySelect.value,
+                            isBold: labelBoldCheckbox.checked,
+                            bgColor: bgColorInput.value
+                        });
+                        URL.revokeObjectURL(url);
+                        
+                        // Eksekusi output kanvas mengikuti format (JPG atau PNG)
+                        const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+                        const quality = format === 'jpg' ? 1.0 : undefined;
+                        resolve(tempCanvas.toDataURL(mimeType, quality));
+                    };
+                    img.src = url;
+                });
+            }
+
+            async function renderBatchListUI() {
+                batchCountText.textContent = parsedBatchItems.length;
+                batchListContainer.innerHTML = "";
+
+                if (parsedBatchItems.length === 0) {
+                    batchListContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">Data kosong atau format salah.</div>`;
+                    downloadBatchZipBtn.disabled = true;
+                    return;
+                }
+
+                downloadBatchZipBtn.disabled = false;
+                batchProgressContainer.classList.remove("hidden");
+                batchProgressBar.style.width = "0%";
+                batchProgressVal.textContent = "0%";
+                batchProgressStatus.textContent = "Membuat Pratinjau Batch...";
+
+                for (let i = 0; i < parsedBatchItems.length; i++) {
+                    const item = parsedBatchItems[i];
+                    // Pratinjau selalu di-cache ke format PNG
+                    const dataUrl = await generateCanvasDataUrl(item, 'png');
+                    item.generatedDataUrl = dataUrl;
+
+                    const row = document.createElement("div");
+                    row.className = "flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 gap-3";
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${dataUrl}" class="w-12 h-12 rounded-lg bg-white p-1 object-contain flex-shrink-0" alt="QR Preview">
+                            <div class="overflow-hidden text-left">
+                                <p class="text-xs font-semibold text-white truncate">${item.label || item.url}</p>
+                                <p class="text-[11px] text-slate-400 truncate">${item.url}</p>
+                                ${item.frameText ? `<span class="inline-block text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded mt-0.5">${item.frameText}</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="downloadSingleBatchBtn text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition-all flex-shrink-0" data-index="${i}">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                    `;
+                    batchListContainer.appendChild(row);
+
+                    const progressPercent = Math.round(((i + 1) / parsedBatchItems.length) * 100);
+                    batchProgressBar.style.width = `${progressPercent}%`;
+                    batchProgressVal.textContent = `${progressPercent}%`;
+                }
+
+                batchProgressStatus.textContent = "Pratinjau Selesai!";
+                setTimeout(() => batchProgressContainer.classList.add("hidden"), 1500);
+
+                // Add single item download listener inside batch (Menyesuaikan dengan format yg dipilih)
+                document.querySelectorAll(".downloadSingleBatchBtn").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idx = parseInt(e.currentTarget.getAttribute("data-index"));
+                        const targetItem = parsedBatchItems[idx];
+                        
+                        if (targetItem) {
+                            const format = batchDownloadFormat.value; // Ambil opsi dropdown terbaru
+                            let imgData = targetItem.generatedDataUrl; // cache PNG default
+
+                            // Kalau user milih JPG, generate ulang karena preview di-cache pakai PNG
+                            if (format === 'jpg') {
+                                imgData = await generateCanvasDataUrl(targetItem, 'jpg');
+                            }
+
+                            const link = document.createElement("a");
+                            const safeFilename = getSafeFilename(targetItem.url);
+                            link.download = `${safeFilename}.${format}`;
+                            link.href = imgData;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
+                    });
+                });
+            }
+
+            // DOWNLOAD ALL AS ZIP LOGIC (Disesuaikan dengan pilihan format dropdown)
+            downloadBatchZipBtn.addEventListener("click", async () => {
+                if (parsedBatchItems.length === 0) return;
+
+                const zip = new JSZip();
+                const folder = zip.folder("QR_Codes");
+                const format = batchDownloadFormat.value; // Pilihan PNG atau JPG
+
+                batchProgressContainer.classList.remove("hidden");
+                batchProgressBar.style.width = "0%";
+                batchProgressVal.textContent = "0%";
+                batchProgressStatus.textContent = "Mengompresi ke File ZIP...";
+
+                for (let i = 0; i < parsedBatchItems.length; i++) {
+                    const item = parsedBatchItems[i];
+                    let imgData = item.generatedDataUrl;
+
+                    // Buat gambar sesuai format
+                    if (format === 'jpg') {
+                        imgData = await generateCanvasDataUrl(item, 'jpg');
+                    } else if (!imgData) {
+                        imgData = await generateCanvasDataUrl(item, 'png');
+                    }
+
+                    // Remove header base64 data url (Baik itu png / jpeg)
+                    const base64Content = imgData.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
+                    const safeFilename = getSafeFilename(item.url);
+                    
+                    folder.file(`${i + 1}_${safeFilename}.${format}`, base64Content, { base64: true });
+
+                    const progress = Math.round(((i + 1) / parsedBatchItems.length) * 100);
+                    batchProgressBar.style.width = `${progress}%`;
+                    batchProgressVal.textContent = `${progress}%`;
+                }
+
+                batchProgressStatus.textContent = "Mengunduh ZIP...";
+                zip.generateAsync({ type: "blob" }).then((content) => {
+                    saveAs(content, `Bulk_QR_Codes_${Date.now()}.zip`);
+                    batchProgressStatus.textContent = "Selesai!";
+                    setTimeout(() => batchProgressContainer.classList.add("hidden"), 2000);
+                });
+            });
+
+            // Initial Single QR
+            updateSingleQRCode();
+        });
+    </script>
+</body>
+</html>
